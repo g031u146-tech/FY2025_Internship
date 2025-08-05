@@ -1,0 +1,14 @@
+websocket:
+    interface: lo
+    port: 54321
+# データベース設定
+database:
+    host: localhost
+    port: 27017
+    username: root
+    password: password
+# ログ設定
+log:
+  level: DEBUG
+  maxBytes: 1000000
+  backupCount: 5

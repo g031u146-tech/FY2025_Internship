@@ -1,49 +1,39 @@
 # -*- coding: utf-8 -*-
+from .data_source import DataSource
 from Common.Constant import MAX_DIVISION_NUMBER, CAMERA, STREAMING
 from Common.import_libraries import *
 
 class Tramsmission:
     ''' 伝送クラス '''
 
-    id: int = -1
-    ''' WebsocketID '''
-    capacity: int = -1
-    ''' キャパシティ '''
-    capture: VideoCapture = None
-    ''' ビデオキャプチャ '''
-    websocket: ClientConnection = None
-    ''' Websocketクライアント '''
-    logger: logging = None
-    ''' ロガー '''
-
     def __init__(self):
         ''' コンストラクタ '''
         pass
 
-    @classmethod
-    async def send_connect_information(cls, json_data: dict):
+    @staticmethod
+    async def send_connect_information(json_data: dict):
         ''' 接続情報送信 '''
-        cls.logger.info(json_data['message'])
-        cls.id = json_data['id']
+        DataSource.logger.info(json_data['message'])
+        DataSource.id = json_data['id']
         
         json_data['clientType'] = CAMERA
         json_data['hostname'] = socket.gethostname()
-        json_data['capacity'] = cls.capacity
+        json_data['capacity'] = DataSource.capacity
                   
-        await cls.websocket.send(json.dumps(json_data))
+        await DataSource.websocket.send(json.dumps(json_data))
 
-    @classmethod
-    async def send_image_information(cls):
+    @staticmethod
+    async def send_image_information():
         ''' 画像情報送信 '''
 
         while True:
-            result, frame = cls.capture.read()
+            result, frame = DataSource.capture.read()
 
             if not result:
                 continue
 
             json_data = {
-                'id': cls.id,
+                'id': DataSource.id,
                 'transmissionType': STREAMING,
                 'clientType': CAMERA,
                 'timestamp': int(time.time()),
@@ -68,6 +58,6 @@ class Tramsmission:
                 json_data['endPoint'] = total_sned_number - 1 == i
                 json_data['data'] = base64_data[start_index : start_index + MAX_DIVISION_NUMBER] if i < total_sned_number else base64_data[start_index : ]
 
-                await cls.websocket.send(json.dumps(json_data))
+                await DataSource.websocket.send(json.dumps(json_data))
 
             break

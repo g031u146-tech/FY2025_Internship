@@ -8,8 +8,8 @@ class Logger:
     def __init__(self):
         ''' コンストラクタ '''
     
-    @classmethod
-    def initialize(cls, log_level: int, log_file: str, max_bytes: int = 100000000, backup_count = 10):
+    @staticmethod
+    def initialize(log_level: int, log_file: str, max_bytes: int = 100000000, backup_count = 10) -> logging:
         ''' 初期化
 
         :param int log_level: ログレベル
@@ -18,8 +18,8 @@ class Logger:
         :param int backup_count: ログファイルバックアップ世代数（デフォルト：10）
         '''
 
-        cls.logger = logging.getLogger()
-        cls.logger.setLevel(log_level)
+        logger = logging.getLogger()
+        logger.setLevel(log_level)
 
         # ログ出力ディレクトリがあるかチェック
         if not os.path.exists(SAVE_DIR):
@@ -40,6 +40,8 @@ class Logger:
         stream_handler.setFormatter(formatter)
 
         # ログハンドラ設定
-        cls.logger.addHandler(file_handler)
-        cls.logger.addHandler(stream_handler)
+        logger.addHandler(file_handler)
+        logger.addHandler(stream_handler)
+
+        return logger
         

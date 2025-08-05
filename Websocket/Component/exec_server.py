@@ -1,22 +1,21 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
-from websocket_server_transmission_processing import WebsocketServerTransmissionProcessing as Server
-from logging import DEBUG, INFO, ERROR
-import asyncio
-
-LOGGER_LEVEL = DEBUG if __debug__ else ERROR
+from Server.server import Server
+from Common.import_libraries import *
 
 def main():
     ''' メイン関数 '''
-    ws_server = Server(LOGGER_LEVEL)
-    ws_server.initialize()
+    try:
+        # 初期化
+        Server.initialize()
+    except Exception as e:
+        Server.logger.error(e)
+        return
     
     try:
-        asyncio.run(ws_server.run())
+        asyncio.run(Server.run())
     except Exception as e:
-        ws_server.logger.error(e)
-        ws_server.logger.info('プログラムを終了しました。')
+        Server.logger.error(e)
+        Server.logger.info('プログラムを終了しました。')
     
 if __name__ == '__main__':
     main()

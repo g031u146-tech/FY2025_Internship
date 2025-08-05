@@ -14,19 +14,23 @@ class ImageProcessing():
     
     def __init__(self):
         ''' コンストラクタ '''
-        
+        pass
+
+    @classmethod
+    def initialize(cls):
+
         # モデル読み込み
-        self.models = {
-           # DETECTION: YOLO('yolov8n.pt'),
+        cls.models = {
+            DETECTION: YOLO('yolov8n.pt'),
             SEGMENTATION: YOLO('yolov8n-seg.pt'),
-            # POSE: YOLO('yolov8n-pose.pt'),
-            # OBB: YOLO('yolov8n-obb.pt'),
-            # CLASS: YOLO('yolov8n-cls.pt'),
+            POSE: YOLO('yolov8n-pose.pt'),
+            OBB: YOLO('yolov8n-obb.pt'),
+            CLASS: YOLO('yolov8n-cls.pt'),
             # MOTION: ''
         }
 
-        self.receive_data = {}
-        self.before_frame = None
+        cls.receive_data = {}
+        cls.before_frame = None
 
     def image_data_store(self, json_data):
         ''' 画像データ格納 '''
@@ -45,7 +49,7 @@ class ImageProcessing():
         # 受信した画像データを取得
         base64_datas = list(filter(lambda x : x != '', self.receive_data[timestamp]))
         # データ容量が等しい場合
-        if (len(base64_datas) == json_data['totalSnedNumber']):
+        if (len(base64_datas) == json_data['totalSendNumber']):
             dir_path = f'./tmp/{json_data['id']}'
 
             if not os.path.exists(dir_path):

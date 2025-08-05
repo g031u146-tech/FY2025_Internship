@@ -6,16 +6,18 @@ class DatabaseOperation():
     ''' DB操作クラス '''
 
     # コンストラクタ
-    def __init__(self, conf: dict):
-        ''' コンストラクタ
+    def __init__(self):
+        ''' コンストラクタ '''
+        pass
 
-        :param dict conf: 接続情報 
-        '''
+    @classmethod
+    def initialize(cls, conf: dict):
+        ''' 初期化 '''
 
-        self.mongo_client = pymongo.MongoClient(conf['host'], conf['port'], username=conf['username'], password=conf['password'])
-        self.db = self.mongo_client['websocketClientDB']
-        self.collections = {
-            'registedCameraInfo': self.db['registedCameraInfo']
+        cls.mongo_client = pymongo.MongoClient(conf['host'], conf['port'], username=conf['username'], password=conf['password'])
+        cls.db = cls.mongo_client['websocketClientDB']
+        cls.collections = {
+            'registedCameraInfo': cls.db['registedCameraInfo']
         }
 
     # データ全件検索
