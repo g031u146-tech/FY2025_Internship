@@ -1,0 +1,13 @@
+[Unit]
+Description=RTSP client service
+
+[Service]
+Type=simple
+User=tss_1171240
+WorkingDirectory=/home/tss_1171240/Repository/FY2024_Practical-of-SystemDesign/RTSP
+ExecStart=/home/tss_1171240/Repository/FY2024_Practical-of-SystemDesign/RTSP/exec_client.sh
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

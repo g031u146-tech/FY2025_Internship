@@ -1,0 +1,12 @@
+[Unit]
+Description=V4L2 RTSP server
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+ExecStart=v4l2rtspserver
+
+[Install]
+WantedBy=multi-user.target

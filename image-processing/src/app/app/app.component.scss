@@ -1,0 +1,49 @@
+button {
+    width: 8em;
+}
+
+.registCameraButton {
+    position: absolute;
+    right: 1.5em;
+}
+.content {
+    position: relative;
+    padding-top: 1em;
+}
+
+.content div {
+    width: 60em;
+    margin: auto;
+}
+
+.content th {
+    text-align: center;
+}
+.content td {
+    position: relative;
+}
+
+.buttons{
+    position: absolute;
+    width: 20em;
+    top: 50%;
+    left: -7.5%;
+    transform: translate(7.5%, -50%);
+}
+.buttons button {
+    margin-right: 0.5em;
+}
+.buttons button:last-child {
+    margin-right: 0;
+}
+
+.mat-column-position {
+    width: 5em;
+    text-align: center;
+    border-right: 1px solid #616161;
+}
+
+.mat-column-name {
+    width: 25em;
+    border-right: 1px solid #616161;
+}
