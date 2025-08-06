@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from Client.client import Client
-from Client.data_source import DataSource
+from Client import Client, DataSource
 from Common.import_libraries import *
 
 RECONECT_SEC = 5

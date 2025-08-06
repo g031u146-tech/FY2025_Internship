@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-import pymongo
+from Common.common import *
 
 class DatabaseOperation():
     ''' DB操作クラス '''

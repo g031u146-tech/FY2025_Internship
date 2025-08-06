@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from Server.server import Server
+from Server import Server, DataSource
 from Common.import_libraries import *
 
 def main():
@@ -8,14 +8,14 @@ def main():
         # 初期化
         Server.initialize()
     except Exception as e:
-        Server.logger.error(e)
+        DataSource.logger.error(e)
         return
     
     try:
         asyncio.run(Server.run())
     except Exception as e:
-        Server.logger.error(e)
-        Server.logger.info('プログラムを終了しました。')
+        DataSource.logger.error(e)
+        DataSource.logger.info('プログラムを終了しました。')
     
 if __name__ == '__main__':
     main()

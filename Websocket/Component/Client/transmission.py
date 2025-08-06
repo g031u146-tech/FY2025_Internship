@@ -25,10 +25,8 @@ class Tramsmission:
     @staticmethod
     async def send_image_information():
         ''' 画像情報送信 '''
-
         while True:
             result, frame = DataSource.capture.read()
-
             if not result:
                 continue
 
@@ -37,7 +35,7 @@ class Tramsmission:
                 'transmissionType': STREAMING,
                 'clientType': CAMERA,
                 'timestamp': int(time.time()),
-                'totalSnedNumber': 0,
+                'totalSendNumber': 0,
                 'sendNumber': -1,
                 'endPoint': False,
                 'data': ''
@@ -49,7 +47,7 @@ class Tramsmission:
             base64_data = base64.b64encode(encoded).decode()
                             
             total_sned_number = math.ceil(len(base64_data) / MAX_DIVISION_NUMBER)
-            json_data['totalSnedNumber'] = total_sned_number
+            json_data['totalSendNumber'] = total_sned_number
 
             for i in range(total_sned_number):
                 start_index = i * MAX_DIVISION_NUMBER

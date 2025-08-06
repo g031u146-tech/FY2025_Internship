@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
-venvPath='../venv/vxx_yyyymmdd/bin/activate'
+venvPath='./venv/20250805/bin/activate'
 
 source $venvPath
-python ./Server/exec_server.py
+python ./Component/exec_server.py
 deactivate

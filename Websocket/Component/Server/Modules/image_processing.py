@@ -1,17 +1,9 @@
 # -*- coding: utf-8 -*-
+from ..Constant import DETECTION, SEGMENTATION, POSE, OBB, CLASS, MOTION
+from Common.import_libraries import *
 
-from Constant.models import DETECTION, SEGMENTATION, POSE, OBB, CLASS, MOTION
-
-from ultralytics import YOLO
-
-import numpy as np
-import os
-import base64
-import cv2
-
-class ImageProcessing():
+class ImageProcessing:
     ''' 画像処理クラス '''
-    
     def __init__(self):
         ''' コンストラクタ '''
         pass
@@ -32,22 +24,24 @@ class ImageProcessing():
         cls.receive_data = {}
         cls.before_frame = None
 
-    def image_data_store(self, json_data):
+    @classmethod
+    def image_data_store(cls, json_data):
         ''' 画像データ格納 '''
         timestamp = json_data['timestamp']
         
-        if (timestamp not in self.receive_data):
-            self.receive_data[timestamp] = []
+        if (timestamp not in cls.receive_data):
+            cls.receive_data[timestamp] = []
 
-        self.receive_data[timestamp].append(json_data['data'])
+        cls.receive_data[timestamp].append(json_data['data'])
     
-    def image_save(self, json_data):
+    @classmethod
+    def image_save(cls, json_data):
         '''画像保存'''
         timestamp = json_data['timestamp']
         file_path = None
 
         # 受信した画像データを取得
-        base64_datas = list(filter(lambda x : x != '', self.receive_data[timestamp]))
+        base64_datas = list(filter(lambda x : x != '', cls.receive_data[timestamp]))
         # データ容量が等しい場合
         if (len(base64_datas) == json_data['totalSendNumber']):
             dir_path = f'./tmp/{json_data['id']}'
@@ -66,19 +60,20 @@ class ImageProcessing():
             # 画像を保存 
             cv2.imwrite(file_path, img)
 
-            del self.receive_data[timestamp]
+            del cls.receive_data[timestamp]
 
         return file_path 
 
-    def exec_image_process(self, file_path, model):
+    @classmethod
+    def exec_image_process(cls, file_path, model):
         ''' 画像処理実行 '''
         img = cv2.imread(file_path)
-
+        
         # 検出処理（YOLO）
         if model != MOTION:
-            self.before_frame = None
+            cls.before_frame = None
 
-            model = self.models[model]
+            model = cls.models[model]
             results = model.predict(img, save=True, conf=0.5, show_conf=False, show_boxes=False, classes=[0, 62])
             
             file_path = os.path.join(results[0].save_dir, results[0].path)
@@ -98,6 +93,6 @@ class ImageProcessing():
                     
                     cv2.fillConvexPoly(img, xys, (255, 0, 0))
             
-            cv2.imwrite(file_path,img)
+            cv2.imwrite(file_path, img)
 
         return file_path, len(names)

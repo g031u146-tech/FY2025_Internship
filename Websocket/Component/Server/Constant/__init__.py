@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from models import *
-from database_operation import *
+from .models import *
 
 LOG_FILE = r'server.log'
 ''' ログファイル名 '''

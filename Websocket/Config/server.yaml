@@ -9,6 +9,6 @@ database:
     password: password
 # ログ設定
 log:
-  level: DEBUG
+  level: INFO
   maxBytes: 1000000
   backupCount: 5
