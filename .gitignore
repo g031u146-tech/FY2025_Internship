@@ -52,4 +52,5 @@ venv/
 mongodb_data/
 runs/
 tmp/
+log/
 *.pt

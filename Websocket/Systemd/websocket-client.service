@@ -4,8 +4,8 @@ Description=Websocket client service
 [Service]
 Type=simple
 User=tss_1171240
-WorkingDirectory=/home/tss_1171240/Repository/Websocket
-ExecStart=/home/tss_1171240/Repository/Websocket/exec_client.sh
+WorkingDirectory=/home/tss_1171240/Repository/FY2025_Internship/Websocket
+ExecStart=/home/tss_1171240/Repository/FY2025_Internship/Websocket/exec_client.sh
 Restart=always
 RestartSec=60
 

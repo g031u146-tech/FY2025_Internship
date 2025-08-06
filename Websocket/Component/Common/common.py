@@ -16,7 +16,6 @@ class Common:
         :param str target_dir: 対象ディレクトリ
         :param bool is_create_dir: ディレクトリ作成フラグ（デフォルト： False）
         '''
-
         # 対象のディレクトリが存在するかチェック
         if os.path.exists(target_dir):  
             # 存在する場合は削除
@@ -35,9 +34,6 @@ class Common:
         :return: ファイルデータ
         :rtype: Any | bytes
         '''
-
-        data = None
-
         with open(target_file, 'rb') as f:
             # JSONファイルの場合
             if 'json' in target_file:
