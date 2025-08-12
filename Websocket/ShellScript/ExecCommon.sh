@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-
 createVenv(){
   venvDir='../venv'
   # 仮想環境格納用のディレクトリがあるかチェック
