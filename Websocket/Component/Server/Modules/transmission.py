@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from .image_processing import ImageProcessing
-from ..Constant import SEGMENTATION
+from .database_operation import DatabaseOperation as db
+from ..Constant import SEGMENTATION, REGIST_CAMERA_INFO
 from ..data_source import DataSource
 from Common.Constant import *
 from Common.import_libraries import *
 
 class Transmission:
     ''' Websocketサーバ伝送処理クラス '''
-    
     def __init__(self):
         ''' コンストラクタ '''
         pass
@@ -24,10 +24,10 @@ class Transmission:
         elif transmission_type == STREAMING:
             Transmission.__streaming_process(client, json_data)
         # 伝送種別が「0x10：カメラ接続情報要求」の場合
-        elif transmission_type == CAMERA_CONNECTION_INFO:
+        elif transmission_type == CAMERA_CONNECED_INFO:
             Transmission.__get_camera_connection_info(client, json_data)
         # 伝送種別が「0x11：カメラ登録情報要求」の場合 
-        elif transmission_type == CAMERA_REGISTRATION_INFO:
+        elif transmission_type == CAMERA_REGISTED_INFO:
             Transmission.__get_camera_registration_info(client, json_data)
         # 伝送種別が「0x20：カメラ登録要求」の場合
         elif transmission_type == CAMERA_REGISTERATION:
@@ -60,13 +60,18 @@ class Transmission:
         if clientType == CAMERA:
             DataSource.camera_clients.append({
                 'id': client['id'],
-                'address': client['address'][0],
+                'ipAddress': client['address'][0],
                 'hostname': json_data['hostname'],
                 'count':0,
                 'capacity': json_data['capacity'],
                 'isProcess': False,
                 'image_path': [],
             })
+
+            db.update_data(REGIST_CAMERA_INFO,
+                           {'hostname': json_data['hostname']},
+                           {'ipAddress': client['address'][0]})
+
         # クライアントが「ビューアー」の場合
         elif clientType == VIEWER:
             DataSource.viewer_clients.append({
@@ -105,13 +110,23 @@ class Transmission:
     @staticmethod
     def __get_camera_registration_info(client, json_data):
         ''' カメラ登録情報関数 '''
-        json_data['data'] = DataSource.camera_clients
+        registedCameraInfos = db.find_data(REGIST_CAMERA_INFO)
+        json_data['data'] = []
+        for registedCameraInfo in registedCameraInfos:
+            del registedCameraInfo['_id']
+
+            camera_client = next((x for x in DataSource.camera_clients if x['hostname'] == registedCameraInfo['hostname']), None)
+            if camera_client:
+                registedCameraInfo['capacity'] = camera_client['capacity']
+                registedCameraInfo['count'] = camera_client['count']
+                registedCameraInfo['retio'] = camera_client['count'] // camera_client['capacity']
+            json_data['data'].append(registedCameraInfo)
+        
         Transmission.send_data_to_client(client, json_data)
 
     @staticmethod
     def __regist_camera(client, json_data):
         ''' カメラ登録関数 '''
-        #viewerClient = next((x for x in self.clients[VIEWER] if x['id'] == client['id']), None)
         Transmission.send_data_to_client(client, json_data)
 
     @staticmethod

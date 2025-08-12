@@ -1,7 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Subject } from "rxjs";
-import { WebsocketService } from "./service/websocket.service";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common'
 import { MatRadioModule } from '@angular/material/radio';
@@ -11,13 +9,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatToolbar} from '@angular/material/toolbar'
 import { CdkListbox, CdkOption } from '@angular/cdk/listbox';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog'
-import { ImageViewDialogComponent } from './component/image-view-dialog/image-view-dialog.component'
-import { RegistCameraDialogComponent } from './component/regist-camera-dialog/regist-camera-dialog.component';
-import { ChangeSettingCameraDialogComponent } from './component/change-setting-camera-dialog/change-setting-camera-dialog.component';
-import { UnsubscribeCameraDialogComponent } from './component/unsubscribe-camera-dialog/unsubscribe-camera-dialog.component';
+import * as Components  from './component';
+import * as Services from './service/';
+import { ModelType } from './constant/';
+
 
 @Component({
   selector: 'app-root',
@@ -37,319 +35,109 @@ import { UnsubscribeCameraDialogComponent } from './component/unsubscribe-camera
     CdkOption,
     MatTableModule,
     MatPaginator,
-    RegistCameraDialogComponent, ImageViewDialogComponent, ChangeSettingCameraDialogComponent, UnsubscribeCameraDialogComponent
     ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 
 export class AppComponent implements OnInit {
-  private readonly CONECT = 0x00;
-  private readonly STREAMING = 0x01;
-  private readonly VERIFICATION = 0x02;
-  private readonly CAMERA_INFO = 0x11;
-  private readonly CHANGE_MODEL = 0x11;
-  private readonly CHANGE_CAMERA = 0x12;
-
-  private readonly VIEWER = 0x01;
-
-  private readonly DETECTION = 0x00;
-  private readonly SEGMENTATION = 0x01;
-  private readonly POSE = 0x02;
-  private readonly OBB = 0x03;
-  private readonly CLASS = 0x04;
-  private readonly MOTION = 0xFF;
-  protected readonly models: {[key: string] : string} = { 
-    [this.DETECTION]: '物体検出',
-    [this.SEGMENTATION]: 'セグメンテーション',
-    [this.POSE]: '姿勢推定',
-    //[this.OBB]: '指向性検出',
-    [this.CLASS]: '画像分類',
-    //[this.MOTION]: '動体検知'
-  };
-  
-  protected selectedModel: string = this.DETECTION.toString();
-  
-  private receiveData: string = '';
-  private imageData: string = '';
-
-  private canvas: any;
-  private context: any;
-  private subject$: Subject<string> = new Subject<string>();
-
-  protected host: string = '';
-  protected port: string = '';
-  protected buttonName: string = '';
-  protected isConnect: boolean = false;
-  protected isComplete: boolean = false;
-  protected cameraList = new MatTableDataSource<any>([]);
-  protected selectCamera: string | undefined= undefined;
-
+  protected selectedModel: string = ModelType.DETECTION.toString();
   protected displayedColumns: string[] = ['position', 'name', 'weight'];
-  // protected dataSource :any = new BehaviorSubject<any[]>(ELEMENT_DATA);cameraID: any;
+  constructor(public websocket: Services.Websocket, private dialog: MatDialog) {}
 
-  constructor(private websocketService: WebsocketService, private dialog: MatDialog) {}
-
-  @ViewChild('paginator') paginator!: MatPaginator;
-
-  ngOnInit(): void {
-    this.host = 'localhost';
-    this.port = '54321'
-    this.buttonName = 'Websocket接続開始';
-    this.isConnect = false;
-    this.isComplete = false;
-    
-    this.websocketOperaion()
+  /**
+   * コンポーネント初期化時の処理
+   */
+  public ngOnInit(): void {
+    this.websocket.initialize();
 
     document.addEventListener('DOMContentLoaded', () => {
       this.doLoad();
     });
   }
 
-  doLoad(): void {
-    this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    this.context = this.canvas.getContext('2d');
-
-    this.canvas.width = 320;
-    this.canvas.height = 240;
-    
-    this.timerCallback()
-  }
-  
   /**
-   * タイマー処理
+   * ページロード時の処理
    */
-  timerCallback(): void {
-    // 登録済みカメラ情報要求
-    this.subject$.next(JSON.stringify(
-      {
-        'transmissionType': this.CAMERA_INFO
-      }
-    ));
-
-    setTimeout(() => {
-      this.timerCallback();
-    }, 3000);
-  }
-
-  websocketOperaion(): void {
-    // Websocket未接続の場合
-    if (!this.isConnect) {
-      this.subject$ = this.websocketService.connect(this.host, this.port);
-      
-      this.subject$.subscribe(
-        msg => {
-          let jsonData = JSON.parse(msg)
-          console.log(jsonData)
-
-          // 伝送種別が「接続」の場合
-          if (jsonData['transmissionType'] == this.CONECT) {
-            jsonData['message'] = '';
-            jsonData['clientType'] = this.VIEWER;
-            jsonData['selectCameraId'] = -1;
-            jsonData['modelType'] = this.SEGMENTATION;
-
-            this.subject$.next(JSON.stringify(jsonData))
-
-            this.buttonName = 'Websocket接続停止';
-            this.isConnect = true;
-
-          // 伝送種別が「ストリーミング」の場合
-          } else if (jsonData['transmissionType'] == this.STREAMING) {
-            this.receiveData += jsonData['data'];
-            
-            if (jsonData['endPoint']) {
-                this.imageData = this.receiveData;
-                this.receiveData = '';
-
-                let img = new Image();
-                let ctx = this.context;
-                
-                img.onload = ()=> {
-                  ctx.drawImage(img, 0, 0)
-                }
-                img.src = 'data:image/png;base64,' + this.imageData;
-                this.websocketService.ImageData = img.src
-                //console.log( this.imageData)
-            }
-          } else if (jsonData['transmissionType'] == 0x10) {
-            console.log(jsonData)
-
-            const dialogRef = this.dialog.open(RegistCameraDialogComponent, {
-              data: {
-                settingMode: 'Regist',
-                jsonData: jsonData,
-                subject: this.subject$,
-              }
-            });
-        
-            dialogRef.afterClosed().subscribe(result =>{
-              console.log('cloce dialog')
-            })
-          // 伝送種別が「カメラ登録情報要求」の場合
-          } else if (jsonData['transmissionType'] == this.CAMERA_INFO) {
-            // console.log(jsonData)
-            this.cameraList = new MatTableDataSource<any>([]);
-            
-            for (let index in jsonData['cameraInfo']) {
-              let weight = jsonData['cameraInfo'][index]['count'] / jsonData['cameraInfo'][index]['capacity']
-              
-              this.cameraList.data.push({   
-                id: jsonData['cameraInfo'][index]['cameraId'].toString(), 
-                name: jsonData['cameraInfo'][index]['cameraName'].toString(), 
-                capacity: jsonData['cameraInfo'][index]['capacity'], 
-                count: jsonData['cameraInfo'][index]['count'], 
-                weight: weight,
-                isMasking: jsonData['cameraInfo'][index]['maskingFlag'],
-                isConnected: jsonData['cameraInfo'][index]['isConnected']
-              })
-            }
-
-            this.cameraList.paginator = this.paginator;
-          } else if (jsonData['transmissionType'] == 0x20) {
-            
-            let resultMsg = jsonData["result"] ? "カメラの登録を行いました。" : "カメラの登録が失敗しました。" 
-            alert(resultMsg) 
-          } else if (jsonData['transmissionType'] == 0x21) {
-            console.log(jsonData)
-            
-            let resultMsg = jsonData["result"] ? "設定変更を行いました。" : "設定変更に失敗しました。" 
-            alert(resultMsg)            
-          }else if (jsonData['transmissionType'] == 0x25) {
-            console.log(jsonData)
-            
-            let resultMsg = jsonData["result"] ? "カメラの登録を解除しました。" : "カメラの登録解除に失敗しました。" 
-            alert(resultMsg)   
-          }
-        },
-        err => {
-          console.log(err)
-          
-          if (this.isComplete) {
-            console.log('接続を終了しました。')
-          } else {
-            console.log('サーバとの接続が切れました。')
-          }
-
-          this.isConnect = false;
-          this.isComplete = false;
-          this.buttonName = 'Websocket接続開始'
-        }
-      );
-    } else {
-      this.isComplete = true;
-      this.cameraList = new MatTableDataSource<any>([]);
-      this.selectCamera = undefined;
-      this.subject$.complete();
-    }
-  }
-
-  cheangeSelectModel(): void {
-    let jsonData = {
-      transmissionType: this.CHANGE_MODEL,
-      modelType: Number(this.selectedModel),
-    }
-
-    this.subject$.next(JSON.stringify(jsonData))
-  }
-
-  cheangeSelectCamera(): void {
-    let jsonData = {
-      transmissionType: this.CHANGE_CAMERA,
-      selectCameraId: Number(this.cameraList.data[0].id)
-    }
-
-    this.subject$.next(JSON.stringify(jsonData))
+  private doLoad(): void {
+    this.websocket.pageLoad();
   }
 
   /**
    * カメラ登録
    */
   openRegistCameraDialog(): void {
-    // this.subject$.next(JSON.stringify({
-    //   "transmissionType": 0x10
-    // }));
+    const dialogRef = this.dialog.open(Components.Dialogs.RegistCamera, {
+      data: {
+        websocket: this.websocket,
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result =>{
+      console.log('Close regist camera dialog')
+    })
   }
 
   /**
    * 画像表示ダイアログ表示処理
    * @param {number} id カメラID
-   * @param {string} name カメラ名
+   * @param {string} name 名称
    * @param {boolean} isMasking マスキングフラグ
    */
   openImageViewDialog(id: number , name: string, isMasking: boolean, isWebsocket: boolean): void {
-    const dialogRef = this.dialog.open(ImageViewDialogComponent, {
+    const dialogRef = this.dialog.open(Components.Dialogs.ImageView, {
       data: {
-        service: this.websocketService,
+        websocket: this.websocket,
         id: id,
         name: name,
         isMasking: isMasking,
         isWebsocket: isWebsocket,
-        subject: this.subject$,
       }
     })
 
-    let jsonData = {
-      transmissionType: this.CHANGE_CAMERA,
-      selectCameraId: id
-    }
-
-    this.subject$.next(JSON.stringify(jsonData))
-
+    // ダイアログが閉じられたときの処理
     dialogRef.afterClosed().subscribe(result =>{
-      console.log('cloce dialog')
+      console.log('Close image view dialog')
     })
   }
 
   /**
-   * 
-   * @param id 
-   * @param name 
-   * @param isMasking 
+   * カメラ設定ダイアログ表示
+   * @param {number} id カメラID
+   * @param {string} name 名称
+   * @param {boolean} isMasking マスキングフラグ
    */
   openSettingCameraDialog(id: number , name: string, isMasking: boolean): void {
-    const dialogRef = this.dialog.open(ChangeSettingCameraDialogComponent, {
+    const dialogRef = this.dialog.open(Components.Dialogs.ChangeSettingCamera, {
       data: {
-        service: this.websocketService,
+        websocket: this.websocket,
         id: id,
         name: name,
         isMasking: isMasking,
-        subject: this.subject$,
       }
     });
 
+    // ダイアログが閉じられたときの処理
     dialogRef.afterClosed().subscribe(result =>{
-      console.log('cloce dialog')
+      console.log('Close setting camera dialog')
     })
   }
 
   /**
-   * 
-   * @param id 
+   * カメラ解除ダイアログ表示
+   * @param {number} id カメラID
    */
   openUnsubscribeCameraDialog(id: number): void {
-    const dialogRef = this.dialog.open(UnsubscribeCameraDialogComponent, {
+    const dialogRef = this.dialog.open(Components.Dialogs.UnsubscribeCamera, {
       data: {
-        service: this.websocketService,
+        websocket: this.websocket,
         id: id,
-        subject: this.subject$,
       }
     });
 
+    // ダイアログが閉じられたときの処理
     dialogRef.afterClosed().subscribe(result =>{
-      console.log('cloce dialog')
+      console.log('Close unsubscraibe camera dialog')
     })
   }
 }
-
-// export class ExampleDataSource extends DataSource<any> {
-//   /** Stream of data that is provided to the table. */
-//   // data = new BehaviorSubject<any[]>(ELEMENT_DATA);
-
-//   /** Connect function called by the table to retrieve one stream containing the data to render. */
-//   connect(): Observable<any[]> {
-//     return this.data;
-//   }
-
-//   disconnect() {}
-// }

@@ -1,6 +1,10 @@
 <mat-toolbar>
   <span>人検知システム</span>
-  <!--<button class="registCameraButton" mat-button color="accent" (click)="openRegistCameraDialog()">カメラ登録</button>--> 
+  <span *ngIf="websocket.isConnected">（Connected）</span>
+  <span *ngIf="!websocket.isConnected">（Disconnect）</span>
+  <button class="registCameraButton" mat-button color="accent" (click)="openRegistCameraDialog()">
+    カメラ登録
+  </button> 
 </mat-toolbar>
 <main class="main">
   <!-- 取得画像描画（非表示） -->
@@ -9,7 +13,7 @@
   <div class="content" >
     <div class="mat-elevation-z8">
     <!--　一覧　-->
-    <table mat-table [dataSource]="cameraList ">
+    <table mat-table [dataSource]="websocket.registedCameraDataSource ">
       <!-- Position Column -->
       <ng-container matColumnDef="position">
         <th mat-header-cell *matHeaderCellDef>No.</th>
@@ -27,13 +31,7 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
           <div class="buttons">
-            <button mat-flat-button color="accent" [disabled]="!element.isConnected" (click)="openImageViewDialog(element.id, element.name, element.isMasking, true)">
-              Websocket
-            </button>
-            <button mat-flat-button color="primary" [disabled]="!element.isConnected" (click)="openImageViewDialog(element.id, element.name, element.isMasking, false)">
-              RTSP
-            </button>
-            <!-- <button mat-flat-button color="accent" [disabled]="!element.isConnected" (click)="openImageViewDialog(element.id, element.name, element.isMasking)">
+            <button mat-flat-button color="accent" [disabled]="!element.ipAddress" (click)="openImageViewDialog(element.id, element.name, element.isMasking, true)">
               画像表示
             </button>
             <button mat-flat-button color="primary" (click)="openSettingCameraDialog(element.id, element.name, element.isMasking)">
@@ -41,7 +39,7 @@
             </button>
             <button mat-flat-button color="warn" (click)="openUnsubscribeCameraDialog(element.id)">
               登録解除
-            </button> -->
+            </button>
           </div>
         </td>
       </ng-container>
@@ -49,7 +47,7 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-    <mat-paginator #paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    <mat-paginator #websocket.registedCameraPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
     </div>
   </div>
 </main>

@@ -1,7 +1,18 @@
 #!/usr/bin/bash
+source ./Common.sh
+# 仮想環境作成
+venvPath=$(createVenv)
+isExecVenv=$?
 
-venvPath='./venv/20250805/bin/activate'
+# 仮想環境を有効化
+source "${venvPath}/bin/activate"
 
-source $venvPath
+# 仮想環境を作成した場合
+if [ $isExecVenv = 0 ]; then
+    pipInstall
+fi
+
+# 実行
 python ./Component/exec_client.py
+# 仮想環境を無効化
 deactivate

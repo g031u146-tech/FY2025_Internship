@@ -1,0 +1,1 @@
+export { UnregisteredCameraInfoInterface as UnregisteredCameraInfo } from './unregistered-camera-info.interface';

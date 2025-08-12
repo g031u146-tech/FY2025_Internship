@@ -3,7 +3,7 @@ import { Component, Inject  } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { AppComponent } from '../../app.component';
+import * as Services from '../../service/';
 
 @Component({
   selector: 'app-image-view-dialog',
@@ -18,50 +18,33 @@ import { AppComponent } from '../../app.component';
   styleUrl: './image-view-dialog.component.scss'
 })
 
+/**
+ * 画像表示ダイアログコンポーネント
+ */
 export class ImageViewDialogComponent {
-  private canvas: HTMLCanvasElement;
-  private context: any; 
-  
+  /** マスキングフラグ */
+  protected isMasking: boolean = false;
+
+  /**
+   * コンストラクタ
+   * @param dialogRef ダイアログ参照
+   * @param data ダイアログデータ
+   */
   constructor (private dialogRef: MatDialogRef<ImageViewDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
-    this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    this.context = this.canvas.getContext('2d');
-
-    this.canvas.width = 320;
-    this.canvas.height = 240;
-    
-    this.timerCallback();
-    console.log(this.data.isWebsocket)
+    /** マスキングフラグ */
+    this.isMasking = data.isMasking;
   }
-
-  timerCallback(): void{
-    setTimeout(() => {
-      this.timerCallback();
-    }, 0);
-  }
-
+  
   /**
    * マスキングスライドトグル切り替え処理
    */
   changeMaskingSliedToggle(): void {
-
-    this.data.isMasking = !this.data.isMasking
-
-    // console.log("変更に成功しました")
-    // alert('変更に成功しました')
-    this.data.subject.next(JSON.stringify({
-      transmissionType: 0x21,
-      cameraId: Number(this.data.id),
-      cameraName:  this.data.name,
-      maskingFlag: this.data.isMasking
-    }))
   }
   
-
   /**
    * 閉じるボタンイベント
    */
   onClose(): void{
     this.dialogRef.close();
-    
   }
 }

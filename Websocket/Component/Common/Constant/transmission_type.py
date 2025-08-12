@@ -1,13 +1,16 @@
 CONECT = 0x00 
-''' 伝送種別: 接続 '''
+''' 伝送種別: 接続要求 '''
 
 STREAMING = 0x01
-''' 伝送種別: ストリーミング '''
+''' 伝送種別: ストリーミング要求 '''
 
-CAMERA_CONNECTION_INFO = 0x10
+CHENGE_VIEW_CAMERA = 0x05
+''' 伝送種別: 表示カメラ切替要求 '''
+
+CAMERA_CONNECED_INFO = 0x10
 ''' 伝送種別: カメラ接続情報要求 '''
 
-CAMERA_REGISTRATION_INFO = 0x11
+CAMERA_REGISTED_INFO = 0x11
 ''' 伝送種別: カメラ登録情報要求 '''
 
 CAMERA_REGISTERATION = 0x20

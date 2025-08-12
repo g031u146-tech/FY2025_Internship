@@ -1,0 +1,1 @@
+export { RegistedCameraInfoModel as RegistedCameraInfo } from './registedCameraInfo.model';

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .models import *
+from .collections import *
 
 LOG_FILE = r'server.log'
 ''' ログファイル名 '''

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from .transmission import Transmission
-from ..Constant import TMP_DIRECTORY
+from .database_operation import DatabaseOperation as db
+from ..Constant import TMP_DIRECTORY, REGIST_CAMERA_INFO
 from ..data_source import DataSource
 from Common.Constant import CONECT
 from Common.import_libraries import *
@@ -30,9 +31,16 @@ class ClientOperation(Transmission):
     @staticmethod
     def client_left(client, server):
         ''' クライアント切断関数 '''
+        camera_length = len(DataSource.camera_clients)
 
         DataSource.camera_clients = [i for i in DataSource.camera_clients if i['id'] != client['id']]
         DataSource.viewer_clients = [i for i in DataSource.viewer_clients if i['id'] != client['id']]
+
+        # カメラの接続が切れた場合はIPアドレスを空文字にする
+        if len(DataSource.camera_clients) != camera_length:
+            db.update_data(REGIST_CAMERA_INFO, 
+                           {'ipAddress': client['address'][0]},
+                           {'ipAddress': ''})
 
         # 切断したクライアントの画像格納フォルダを削除
         if os.path.exists(f'{TMP_DIRECTORY}/{client['id']}'):

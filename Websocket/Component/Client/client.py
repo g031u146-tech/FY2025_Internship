@@ -32,6 +32,9 @@ class Client:
         DataSource.url = f'ws://{ip_addr}:{conf["server"]["port"]}'
         DataSource.capacity = conf['camera']['capacity']
         DataSource.capture = VideoCapture(conf['camera']['id'])
+        DataSource.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+        DataSource.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        DataSource.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     @staticmethod
     async def run():
