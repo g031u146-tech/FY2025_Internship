@@ -84,6 +84,8 @@ export class WebsocketService {
    * @public
    */
   public context: any;
+  public dialogRef: any = undefined;
+  public textbox: any = undefined;
 
   @ViewChild('paginator') public registedCameraPaginator!: MatPaginator;
   @ViewChild('paginator') public connectedCameraPaginator!: MatPaginator;
@@ -170,8 +172,18 @@ export class WebsocketService {
             break;
           // 伝送種別が「カメラ登録要求」の場合
           case TransmissionType.CAMERA_REGISTERATION:
+            alert(jsonData["result"]  ? "カメラの登録を行いました。" : "カメラの登録が失敗しました。" )
+            
+            if (jsonData["result"])
+              this.dialogRef.close()
+
+            this.dialogRef = undefined;
+            this.textbox.enable()
+
+            break;
           // 伝送種別が「カメラ設定変更要求」の場合  
           case TransmissionType.CHANGE_CAMERA_SETTINGS:
+            break;
           // 伝送種別が「カメラ削除要求」の場合
           case TransmissionType.CAMERA_DELETE:
             alert(this.getAlertMessage(jsonData)) 
@@ -259,6 +271,11 @@ export class WebsocketService {
    * @private
    */
   private transmissionCameraConnectedInfo(jsonData: any): void {
+    this.connectedCameraDataSource = new MatTableDataSource<any>([]);
+
+    for (let index in jsonData['data']) {
+      this.connectedCameraDataSource.data.push(jsonData['data'][index])
+    }
   }
 
   /**
