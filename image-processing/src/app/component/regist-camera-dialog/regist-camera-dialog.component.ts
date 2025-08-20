@@ -31,7 +31,7 @@ export class RegistCameraDialogComponent  {
   protected displayedColumns: string[] = ['hostname', 'ipAddress'];
   protected clickRowData: Interfaces.UnregisteredCameraInfo | undefined = undefined;
   public name: string = '';
-  public isMasking: boolean = false
+  public isMasking: boolean = true
 
   public errorMessage: string = '';
 
