@@ -104,6 +104,22 @@ class Transmission:
     @staticmethod
     def __get_camera_connection_info(client, json_data):
         ''' カメラ接続情報関数 '''
+        #カメラ接続情報をデータベースと定義、まとめられていたデータを分割してリスト保存
+        registedCameraInfos = db.find_data(REGIST_CAMERA_INFO)
+        json_data['data'] = []
+        
+        #データベースからカメラ登録情報を引用
+        for camera_client in DataSource.camera_clients:
+            #カメラ接続情報がカメラ登録情報と被っているか判定
+            registedCameraInfo = next((x for x in registedCameraInfos if x['hostname'] == camera_client['hostname']), None)
+            #被っていれば次
+            if registedCameraInfo is not None:
+                continue
+            
+            #被っていなければリストに保存
+            json_data['data'].append(camera_client)
+
+        #未登録のカメラ接続情報をクライアント側DBから渡して返す
         json_data['data'] = DataSource.camera_clients
         Transmission.send_data_to_client(client, json_data)
 
@@ -127,6 +143,25 @@ class Transmission:
     @staticmethod
     def __regist_camera(client, json_data):
         ''' カメラ登録関数 '''
+        #json_dataからカメラID、名称、マスキングフラグを引いてリスト
+        
+        registedCameraInfos = db.find_data(REGIST_CAMERA_INFO)
+        registedCameraInfo = max(registedCameraInfos, key=lambda x: x['id'] )
+        
+        json_data['data']['id'] = registedCameraInfo['id'] + 1
+        json_data['data']['capacity'] = 0
+        json_data['data']['registedDate'] = dt.now()       
+
+        try:
+            result = db.insert_data(REGIST_CAMERA_INFO, json_data['data']).acknowledged
+        except:
+            result = False
+        
+        json_data = {
+            'transmissionType': json_data['transmissionType'],
+            'result': result
+        }
+
         Transmission.send_data_to_client(client, json_data)
 
     @staticmethod
