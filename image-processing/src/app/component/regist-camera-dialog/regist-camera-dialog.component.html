@@ -24,11 +24,32 @@
         </mat-paginator>
     </div>
     <!-- 入力フォーム -->
+    <mat-form-field >
+        <mat-label>カメラ名称</mat-label>
+        <input matInput
+               [formControl]="nameTextbox" 
+               maxlength="20"
+               (blur)="updateErrorMessage()"
+               required
+               >
+        @if (name) {
+            <button matSuffix mat-icon-button aria-label="Clear" (click)="name=''">
+              <mat-icon>close</mat-icon>
+            </button>
+        }
+        @if (nameTextbox.invalid){
+            <mat-error>{{errorMessage}}</mat-error>
+        }
+        <mat-hint align="end">{{name.length}} / 20</mat-hint>
+    </mat-form-field>
+    <div>
+        <mat-slide-toggle class="maskingSlideToggleStyle" [(ngModel)]="isMasking"[disabled]="isFormDisabled || data.websocket.dialogRef">マスキング</mat-slide-toggle>
+    </div>
     
 </mat-dialog-content>
 <mat-dialog-actions>
     <div class="bottonContent">
-        <button mat-raised-button color="primary" mat-dialog-close (click)="onRegist()" >登録</button>
-        <button mat-stroked-button color="accent" mat-dialog-close (click)="onClose()">キャンセル</button>
+        <button mat-raised-button color="primary" (click)="onRegist()"[disabled]="isButtonDisabled || data.websocket.dialogRef">登録</button>
+        <button mat-stroked-button color="accent" (click)="onClose()">キャンセル</button>
     </div>
 </mat-dialog-actions>
