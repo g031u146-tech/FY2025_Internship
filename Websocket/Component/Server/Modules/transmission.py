@@ -167,9 +167,29 @@ class Transmission:
     @staticmethod
     def __change_setting_camera(client, json_data):
         ''' カメラ設定変更関数 '''
+        try:
+            result = db.update_data(REGIST_CAMERA_INFO, 
+                                    {'id': json_data['id']}, 
+                                    {'name': json_data['name'], 'isMasking': json_data['isMasking']}).matched_count >0
+        except:
+            result = False
+
+        json_data = {
+            'transmissionType': json_data['transmissionType'],
+            'result': result
+        }
         Transmission.send_data_to_client(client, json_data)
 
     @staticmethod
     def __delete_camera(client, json_data):
         ''' カメラ削除関数 '''
+        try:
+            result = db.delete_data(REGIST_CAMERA_INFO, {'id': json_data['id']}).deleted_count > 0
+        except:
+            result = False
+
+        json_data = {
+            'transmissionType': json_data['transmissionType'],
+            'result': result
+        }
         Transmission.send_data_to_client(client, json_data)

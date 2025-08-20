@@ -10,6 +10,7 @@ import * as Models from '../../model/';
   providedIn: 'root'
 })
 
+
 /**
  * Websocketサービスクラス
  */
@@ -183,11 +184,15 @@ export class WebsocketService {
             break;
           // 伝送種別が「カメラ設定変更要求」の場合  
           case TransmissionType.CHANGE_CAMERA_SETTINGS:
-            break;
+             this.transmissionChangeSettingCamera(jsonData);
+             break;
+
           // 伝送種別が「カメラ削除要求」の場合
           case TransmissionType.CAMERA_DELETE:
-            alert(this.getAlertMessage(jsonData)) 
+            this.transmissionCameraDelete (jsonData);
             break;
+       
+
           default:
             console.warn('Unknown transmission type:', jsonData['transmissionType']);
           }
@@ -263,6 +268,7 @@ export class WebsocketService {
    * @private
    */
   private transmissionChangeViewCamera(jsonData: any): void {
+
   }
 
   /**
@@ -293,6 +299,26 @@ export class WebsocketService {
       this.registedCameraDataSource.data.push(registedCameraInfo);
     }
   }
+
+ /**
+   * 名称変更
+   */
+
+  private transmissionChangeSettingCamera(jsonData: any): void {
+    alert(jsonData['result'] ? '変更成功しました。' : '変更失敗しました。')
+  }
+  
+
+  /**
+   *カメラ削除
+   */
+
+   private transmissionCameraDelete(jsonData:any):void{
+    alert(jsonData['result'] ? ' 削除しました。' : '削除失敗しました。')
+
+}
+
+
 
   /**
    * アラートメッセージ取得
@@ -329,3 +355,6 @@ export class WebsocketService {
     }, 3000);
   }
 }
+
+
+
