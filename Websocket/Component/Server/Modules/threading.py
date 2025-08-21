@@ -71,6 +71,7 @@ class Threading:
         # 最新の画像パスの要素番号を取得
         index = len(camera_client['image_path']) - 1
         file_path, count = ImageProcessing.exec_image_process(camera_client['image_path'][index], SEGMENTATION)
+        print(camera_client)
         
         # キャパシティを格納
         camera_client['count'] = count
