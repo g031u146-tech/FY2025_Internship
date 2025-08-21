@@ -3,11 +3,18 @@
     <!-- 入力フォーム -->
     <mat-form-field hintLabel="最大 20 文字" >
         <mat-label>カメラ名称を入力ください。</mat-label>
-        <input matInput maxlength="20" type="text" [(ngModel)]="name"/>
-        <mat-hint> {{name.length}}/20 </mat-hint> 
+        <input matInput
+               [formControl]="nameTextbox"
+               maxlength="20" 
+               (blur)="updateErrorMessage()"
+                required/>
+        <mat-hint> {{name.length}}/20 </mat-hint>
+        @if (nameTextbox.invalid) {
+            <mat-error>{{errorMessage}}</mat-error>
+        }
     </mat-form-field>
     <div>
-        <mat-slide-toggle class="maskingSlideToggleStyle" [(ngModel)]="isMasking">
+        <mat-slide-toggle class="maskingSlideToggleStyle" [(ngModel)]="isMasking" (click)="checkValues()">
             マスキング
         </mat-slide-toggle>
     </div>
@@ -15,7 +22,7 @@
 </mat-dialog-content>
 <mat-dialog-actions>
     <div class="bottonContent">
-        <button mat-raised-button color="primary" mat-dialog-close length="20" (click)="onConfirm()" >変更</button>
+        <button mat-raised-button color="primary" length="20" (click)="onConfirm()" [disabled]="isDisabledButton">変更</button>
         <button mat-stroked-button color="accent" (click)="onClose()">キャンセル</button>
     </div>
 </mat-dialog-actions>
