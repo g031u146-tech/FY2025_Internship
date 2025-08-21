@@ -1,4 +1,4 @@
-import { Component, Inject, AfterViewInit } from '@angular/core';
+import { Component, Inject, AfterViewInit, OnInit } from '@angular/core';
 import { FormsModule, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef, MatDialogContent, MatDialogActions, MatDialogTitle, MatDialogClose, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -27,7 +27,7 @@ import { TransmissionType } from '../../constant';
   templateUrl: './regist-camera-dialog.component.html',
   styleUrl: './regist-camera-dialog.component.scss'
 })
-export class RegistCameraDialogComponent  {
+export class RegistCameraDialogComponent implements OnInit {
   protected displayedColumns: string[] = ['hostname', 'ipAddress'];
   protected clickRowData: Interfaces.UnregisteredCameraInfo | undefined = undefined;
   public name: string = '';
@@ -57,6 +57,12 @@ export class RegistCameraDialogComponent  {
     this.nameTextbox.disable();
     this.isButtonDisabled = true
 
+  }
+
+  ngOnInit(): void {
+    this.data.websocket.Subject$.next(JSON.stringify({
+      'transmissionType': TransmissionType.CAMERA_CONNECTED_INFO
+    }))
   }
 
   /**
