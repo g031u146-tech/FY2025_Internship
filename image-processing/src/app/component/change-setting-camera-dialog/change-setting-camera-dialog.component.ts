@@ -79,24 +79,7 @@ export class ChangeSettingCameraDialogComponent {
          return;
     }
   }
-  /*
-  onConfirm(): void {
-    if(!confirm('変更しますか？') ) {
-        
-    this.data.websocket.Subject$.next(JSON.stringify(
-      {
-      'transmissionType': TransmissionType.CHANGE_CAMERA_SETTINGS,
-      'id': this.data.id,
-      'name': this.nameTextbox.value,
-      'isMasking':this.isMasking,
-    }
-  ));
-    return;
-  }
-}
-  */
-
-
+  
 
 /**
  * 閉じるボタンイベント
