@@ -112,7 +112,7 @@ class Transmission:
         #データベースからカメラ登録情報を引用
         for camera_client in DataSource.camera_clients:
             #カメラ接続情報がカメラ登録情報と被っているか判定
-            registedCameraInfo = next((x for x in registedCameraInfos if x['hostname'] == camera_client['hostname']), None)
+            registedCameraInfo = next((x for x in registedCameraInfos.to_list() if x['hostname'] == camera_client['hostname']), None)
             #被っていれば次
             if registedCameraInfo is not None:
                 continue
@@ -155,7 +155,8 @@ class Transmission:
 
         json_data['data']['id'] = id + 1
         json_data['data']['capacity'] = 0
-        json_data['data']['registedDate'] = dt.now().strftime('%Y-%m-%d %H:%M:%S')
+        now = dt.now()
+        json_data['data']['registedDate'] = now.strftime('%Y/%m/%dT%H:%M:%S')
 
         try:
             result = db.insert_data(REGIST_CAMERA_INFO, json_data['data']).acknowledged
