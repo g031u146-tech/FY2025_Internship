@@ -82,7 +82,7 @@ export class RegistCameraDialogComponent  {
     this.errorMessage = '';
 
     if (this.nameTextbox.hasError('required')){
-      this.errorMessage = "カメラ名称を入力してください。"
+      this.errorMessage = "カメラ名称を入力してください"
       this.isButtonDisabled = true
       return
     }

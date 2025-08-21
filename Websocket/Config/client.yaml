@@ -1,6 +1,6 @@
 # DHCPを考慮して、macアドレスからIPを取得する
 server: 
-  macAddress: 
+  macAddress: 00:15:5d:82:1d:01
   port: 54321
 # カメラ設定
 camera:
