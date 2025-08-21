@@ -22,7 +22,7 @@ export class WebsocketService {
    * @private
    * @
    */
-  private readonly HOST: string = 'localhost';
+  private readonly HOST: string = '192.168.130.14';
   /**
    * 接続先サーバのポート番号
    * @type {number}
