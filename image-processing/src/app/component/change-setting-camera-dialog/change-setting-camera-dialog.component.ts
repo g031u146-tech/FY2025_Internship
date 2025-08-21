@@ -64,17 +64,37 @@ export class ChangeSettingCameraDialogComponent {
    * @param {string} name 名称
    * @param {boolean} isMasking マスキングフラグ
    */
+
+   onConfirm(): void {
+    if( confirm('変更しますか？') ) {
+        this.data.websocket.Subject$.next(JSON.stringify(
+              {
+                'transmissionType': TransmissionType.CHANGE_CAMERA_SETTINGS,
+                 'id': this.data.id,
+                'name': this.nameTextbox.value,
+                'isMasking':this.isMasking,
+              }
+            ));
+       this.dialogRef.close()
+         return;
+    }
+  }
+  /*
   onConfirm(): void {
-    if(!confirm('変更しますか？') ) return
+    if(!confirm('変更しますか？') ) {
         
     this.data.websocket.Subject$.next(JSON.stringify(
-    {
+      {
       'transmissionType': TransmissionType.CHANGE_CAMERA_SETTINGS,
       'id': this.data.id,
       'name': this.nameTextbox.value,
       'isMasking':this.isMasking,
-    }));
+    }
+  ));
+    return;
   }
+}
+  */
 
 
 
