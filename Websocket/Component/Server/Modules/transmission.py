@@ -50,6 +50,7 @@ class Transmission:
         # メッセージ送信
         DataSource.websocket.send_message(client, json.dumps(data))
         DataSource.logger.info(f'クライアントへデータを送信しました。【接続ID： {client["id"]}】')
+        DataSource.logger.info(f'伝送種別： {data['transmissionType']}')
 
     @staticmethod
     def __connection_process(client, json_data):
@@ -120,13 +121,13 @@ class Transmission:
             json_data['data'].append(camera_client)
 
         #未登録のカメラ接続情報をクライアント側DBから渡して返す
-        json_data['data'] = DataSource.camera_clients
         Transmission.send_data_to_client(client, json_data)
 
     @staticmethod
     def __get_camera_registration_info(client, json_data):
         ''' カメラ登録情報関数 '''
         registedCameraInfos = db.find_data(REGIST_CAMERA_INFO)
+        
         json_data['data'] = []
         for registedCameraInfo in registedCameraInfos:
             del registedCameraInfo['_id']
@@ -136,8 +137,9 @@ class Transmission:
                 registedCameraInfo['capacity'] = camera_client['capacity']
                 registedCameraInfo['count'] = camera_client['count']
                 registedCameraInfo['retio'] = camera_client['count'] // camera_client['capacity']
+            
             json_data['data'].append(registedCameraInfo)
-        
+            
         Transmission.send_data_to_client(client, json_data)
 
     @staticmethod
@@ -146,11 +148,14 @@ class Transmission:
         #json_dataからカメラID、名称、マスキングフラグを引いてリスト
         
         registedCameraInfos = db.find_data(REGIST_CAMERA_INFO)
-        registedCameraInfo = max(registedCameraInfos, key=lambda x: x['id'] )
-        
-        json_data['data']['id'] = registedCameraInfo['id'] + 1
+        id = 0
+        if len(registedCameraInfos.to_list()) > 0:
+            registedCameraInfo = max(registedCameraInfos, key=lambda x: x['id'] )
+            id = registedCameraInfo['id']
+
+        json_data['data']['id'] = id + 1
         json_data['data']['capacity'] = 0
-        json_data['data']['registedDate'] = dt.now()       
+        json_data['data']['registedDate'] = dt.now().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             result = db.insert_data(REGIST_CAMERA_INFO, json_data['data']).acknowledged

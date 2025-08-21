@@ -1,5 +1,5 @@
 websocket:
-    interface: lo
+    interface: eth0
     port: 54321
 # データベース設定
 database:
